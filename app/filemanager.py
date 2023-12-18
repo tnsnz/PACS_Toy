@@ -33,21 +33,6 @@ f_concat = '_'
 d_concat = '/'
 
 
-class LocalStorage:
-    def __init__(self):
-        self.base_storage_path = 'store_dir'  # DBManager.get_base_storage_path()
-
-        self.patient_id: Dict[str, Set[str]] = {}
-        self.id_patient: Dict[str, str] = {}
-
-        self.name_study: Dict[str, Set[str]] = {}
-        self.id_study: Dict[str, Set[str]] = {}
-
-        self.study_series: Dict[str, Set[str]] = {}
-
-        # self.initiate()
-
-
 class FileManager(object, metaclass=Singleton):
     def __init__(self):
         self.local_storage = LocalStorage()
@@ -116,7 +101,7 @@ class FileManager(object, metaclass=Singleton):
             print(e)
 
     def target_file(self, decoded_ds: DatasetDecoder, sop_uid):
-        if not decoded_ds.can_store():
+        if not decoded_ds.is_valid_to_store():
             return ''
 
         target_dir = self.create_directory(decoded_ds)

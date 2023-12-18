@@ -8,14 +8,39 @@ from pydicom import dcmread
 from pynetdicom import AE
 from pynetdicom.apps.common import setup_logging
 from pynetdicom.apps.storescu.storescu import _setup_argparser
-from pynetdicom.sop_class import CTImageStorage
+from pynetdicom.sop_class import (CTImageStorage,
+                                  PatientRootQueryRetrieveInformationModelFind)
 
 from filemanager import FileManager
+from god import FindQuery
 
 
 class FindSCU:
     def __init__(self):
-        pass
+        self.ae = AE()
+        self.ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
+
+    def process(self, qry: FindQuery):
+        assoc = self.ae.associate("127.0.0.1", 11112)
+
+        ds = qry.toDataset()
+
+        if assoc.is_established:
+            ds_set = []
+            responses = assoc.send_c_find(ds, PatientRootQueryRetrieveInformationModelFind)
+            for (status, identifier) in responses:
+                if 0xFF00 == status.Status:
+                    ds_set.append(identifier)
+                elif 0 == status.Status:
+                    print('succeed get response from scp')
+                else:
+                    print('Connection timed out, was aborted or received invalid response')
+
+            assoc.release()
+            print(ds_set)
+            return ds_set
+        else:
+            print('Association rejected, aborted or never connected')
 
 
 class StoreSCU:
@@ -54,29 +79,18 @@ class GetSCU:
 
 
 def main(args):
+    #have to resolve circular dependency issue
+    from moc_find_ui import FindDialog
+
+
     if args is not None:
         sys.argv = args
 
     args = _setup_argparser()
 
     a = QApplication(sys.argv)
-    is_dir = True
-
-    if is_dir:
-        selected_files = [QFileDialog.getExistingDirectory(
-            None,
-            "Select Directory",
-            ""
-        )]
-    else:
-        selected_files = QFileDialog.getOpenFileNames(
-            None,
-            "Select Files",
-            ""
-        )[0]
-
-    scu = StoreSCU(is_dir)
-    scu.request(args, selected_files)
+    w = FindDialog()
+    w.show()
     a.exec()
 
 

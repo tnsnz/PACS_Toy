@@ -12,19 +12,47 @@ from pynetdicom import (
     ALL_TRANSFER_SYNTAXES,
     events
 )
+
+from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelFind
+
 from pynetdicom.apps.common import setup_logging
 from pynetdicom.apps.storescp.storescp import _setup_argparser
 
 from dataset_decoder import DatasetDecoder
 from filemanager import FileManager
+from local_storage import LocalStorage
 
 debug_logger()
 
+local_storage = LocalStorage()
 
 class FindSCP:
     def __init__(self):
-        pass
+        # Initialise the Application Entity and specify the listen port
+        self.ae = AE()
 
+        # Add the supported presentation context
+        self.ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+
+        for cx in AllStoragePresentationContexts:
+            self.ae.add_supported_context(cx.abstract_syntax, ALL_TRANSFER_SYNTAXES)
+
+        self.handlers = [(evt.EVT_C_FIND, self.handle_find)]
+
+        # Start listening for incoming association requests
+        self.ae.start_server(("127.0.0.1", 11112), evt_handlers=self.handlers)
+
+    def handle_find(self, event: events.Event, args, app_logger):
+        ds = event.dataset
+
+        if 'QueryRetrieveLevel' not in ds:
+            # Failure
+            yield 0xC000, None
+            return
+
+        level = ds.QueryRetrieveLevel
+
+        local_storage.find_conditions_dicom(DatasetDecoder(ds), level)
 
 class StoreSCP:
     def __init__(self, args):
@@ -91,7 +119,8 @@ class GetSCP:
 
 
 def main(args=None):
-    s = StoreSCP(args)
+    # scp = StoreSCP(args)
+    scp = FindSCP()
 
 if '__main__' == __name__:
     main(['moc_scp.py', '11112'])

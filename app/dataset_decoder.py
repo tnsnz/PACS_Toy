@@ -42,8 +42,17 @@ class DatasetDecoder:
             self.modality_valid = True
             self.modality = ds.Modality
 
-    def can_store(self):
+    def is_valid_to_store(self):
         return self.p_id_valid and self.p_name_valid and self.s_id_valid and self.s_num_valid and self.modality_valid
+
+    def is_valid_to_find_patient(self):
+        return self.p_id_valid or self.p_name_valid
+
+    def is_valid_to_find_study(self):
+        return self.s_id_valid
+
+    def is_valid_to_find_series(self):
+        return self.s_num_valid
 
     def patient_path(self):
         return self.p_name + '_' + self.p_id
