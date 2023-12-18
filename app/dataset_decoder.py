@@ -16,6 +16,9 @@ class DatasetDecoder:
         self.s_num = ''
         self.s_num_valid = False
 
+        self.modality = ''
+        self.modality_valid = False
+
         self.decode(ds)
 
     def decode(self, ds: Dataset):
@@ -35,9 +38,12 @@ class DatasetDecoder:
             self.s_num_valid = True
             self.s_num = ds.SeriesNumber.original_string
 
+        if hasattr(ds, 'Modality'):
+            self.modality_valid = True
+            self.modality = ds.Modality
+
     def can_store(self):
-        print(self.s_num_valid)
-        return self.p_id_valid and self.p_name_valid and self.s_id_valid and self.s_num_valid
+        return self.p_id_valid and self.p_name_valid and self.s_id_valid and self.s_num_valid and self.modality_valid
 
     def patient_path(self):
         return self.p_name + '_' + self.p_id
