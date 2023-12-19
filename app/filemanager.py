@@ -3,7 +3,7 @@ from typing import List, Dict, Set, Union
 
 from pydicom import Dataset
 
-from dataset_decoder import DatasetDecoder
+from dataset_handler import DatasetDecoder
 from singleton import Singleton
 
 # find patient information from server

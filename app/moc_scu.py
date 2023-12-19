@@ -24,7 +24,6 @@ class FindSCU:
         assoc = self.ae.associate("127.0.0.1", 11112)
 
         ds = qry.toDataset()
-
         if assoc.is_established:
             ds_set = []
             responses = assoc.send_c_find(ds, PatientRootQueryRetrieveInformationModelFind)
@@ -37,7 +36,6 @@ class FindSCU:
                     print('Connection timed out, was aborted or received invalid response')
 
             assoc.release()
-            print(ds_set)
             return ds_set
         else:
             print('Association rejected, aborted or never connected')

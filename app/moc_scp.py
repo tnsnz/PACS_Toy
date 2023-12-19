@@ -18,7 +18,7 @@ from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelFind
 from pynetdicom.apps.common import setup_logging
 from pynetdicom.apps.storescp.storescp import _setup_argparser
 
-from dataset_decoder import DatasetDecoder
+from dataset_handler import DatasetDecoder
 from filemanager import FileManager
 from local_storage import LocalStorage
 
@@ -42,8 +42,9 @@ class FindSCP:
         # Start listening for incoming association requests
         self.ae.start_server(("127.0.0.1", 11112), evt_handlers=self.handlers)
 
-    def handle_find(self, event: events.Event, args, app_logger):
-        ds = event.dataset
+    def handle_find(self, event: events.Event):
+
+        ds = event.identifier
 
         if 'QueryRetrieveLevel' not in ds:
             # Failure
@@ -51,8 +52,12 @@ class FindSCP:
             return
 
         level = ds.QueryRetrieveLevel
+        matches = local_storage.find_matched_dirs(DatasetDecoder(ds), level)
 
-        local_storage.find_files_in_dataset(DatasetDecoder(ds), level)
+        for match in matches:
+            print(match)
+            yield 0xFF00, match
+
 
 class StoreSCP:
     def __init__(self, args):

@@ -1,5 +1,7 @@
 from pydicom import Dataset
 
+from trees import *
+
 
 class DatasetDecoder:
     def __init__(self, ds: Dataset):
@@ -57,3 +59,26 @@ class DatasetDecoder:
 
     def patient_path(self):
         return self.p_name + '_' + self.p_id
+
+
+class DatasetEncoder:
+    def __init__(self, tree_node: TreeNode):
+        self.__ds = Dataset()
+        self.read_tree(tree_node)
+
+    def read_tree(self, tree_node: TreeNode):
+        if tree_node == tree_node.get_root():
+            return
+
+        if isinstance(tree_node, SeriesTreeNode):
+            self.__ds.SeriesNumber = tree_node.get_id()
+        elif isinstance(tree_node, StudyTreeNode):
+            self.__ds.StudyID = tree_node.get_id()
+        elif isinstance(tree_node, PatientTreeNode):
+            self.__ds.PatientID = tree_node.get_id()
+            self.__ds.PatientName = tree_node.get_name()
+
+        self.read_tree(tree_node.get_parent())
+
+    def get_dataset(self):
+        return self.__ds
