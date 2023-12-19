@@ -11,6 +11,7 @@ from pynetdicom.apps.storescu.storescu import _setup_argparser
 from pynetdicom.sop_class import (CTImageStorage,
                                   PatientRootQueryRetrieveInformationModelFind)
 
+from executor import exec_qapplication
 from filemanager import FileManager
 from god import FindQuery
 
@@ -85,10 +86,8 @@ def main(args):
 
     args = _setup_argparser()
 
-    a = QApplication(sys.argv)
-    w = FindDialog()
-    w.show()
-    a.exec()
+    executor = exec_qapplication(FindDialog)
+    executor.__next__()
 
 
 if __name__ == '__main__':
