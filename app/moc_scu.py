@@ -3,7 +3,7 @@ import sys
 import traceback
 
 from PyQt5.QtCore import QElapsedTimer
-from PyQt5.QtWidgets import QFileDialog, QApplication
+from PyQt5.QtWidgets import QApplication
 from pydicom import dcmread
 from pynetdicom import AE
 from pynetdicom.apps.common import setup_logging
@@ -79,9 +79,8 @@ class GetSCU:
 
 
 def main(args):
-    #have to resolve circular dependency issue
+    # have to resolve circular dependency issue
     from moc_find_ui import FindDialog
-
 
     if args is not None:
         sys.argv = args

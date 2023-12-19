@@ -115,28 +115,56 @@ class LocalStorage:
     def initiate(self):
         self.initiate_patient()
 
-    def get_leafs(self):
-        pass
+    def can_node_pruning(self, node: TreeNode, parent_nodes: List[TreeNode]):
+        return node.get_parent() in parent_nodes
+
+    def lcs_match_with_parent_candidates(self, candidate: TreeNode, parent_candidates):
+        matched = False
+        if candidate.get_parent() == candidate.get_root():
+            return matched
+
+        if self.can_node_pruning(candidate, parent_candidates):
+            matched = True
+        else:
+            matched = self.lcs_match_with_parent_candidates(candidate.get_parent(), parent_candidates)
+
+        return matched
+
+    def pruning_nodes(self, candidates: List, parent_candidates):
+        ret = []
+        for candidate in candidates:
+            if self.lcs_match_with_parent_candidates(candidate, parent_candidates):
+                ret.append(candidate)
+
+        return ret
 
     def find_files_in_dataset(self, ds: DatasetDecoder, level: str):
         ret = []
 
         cond_level = level.upper()
 
-        if 'PATIENT' == cond_level and ds.is_valid_to_find_patient():
-            candidates = self.get_matched_nodes(ds.p_id, ds.p_name)
-            for candidate in candidates:
-                leaf_dir = []
-                candidate.find_leaf_dirs(leaf_dir)
-                ret += leaf_dir
+        candidates: List[TreeNode] = []
+        patient_candidates: List[TreeNode] = []
+        study_candidates: List[TreeNode] = []
+        series_candidates: List[TreeNode] = []
+
+        if ds.is_valid_to_find_patient():
+            patient_candidates = self.get_matched_nodes(ds.p_id, ds.p_name)
+        if ds.is_valid_to_find_study():
+            study_candidates = list(self.study_nodes[ds.s_id])
+        if ds.is_valid_to_find_series():
+            series_candidates = list(self.series_nodes[ds.s_num])
+
+        if 'PATIENT' == cond_level:
+            candidates = patient_candidates
         elif 'STUDY' == cond_level and ds.is_valid_to_find_study():
-            study_nodes = list(self.study_nodes[ds.s_id])
-            for node in study_nodes:
-                ret.append(node.to_string())
+            candidates = self.pruning_nodes(study_candidates, patient_candidates)
         elif 'SERIES' == cond_level:
-            series_nodes = list(self.series_nodes[ds.s_num])
-            for node in series_nodes:
-                ret.append(node.to_string())
+            matched_patient = self.pruning_nodes(series_candidates, patient_candidates)
+            candidates = self.pruning_nodes(matched_patient, study_candidates)
+
+        for candidate in candidates:
+            ret.append(candidate.to_string())
 
         return ret
 
@@ -197,6 +225,6 @@ ls = LocalStorage()
 ds = Dataset()
 ds.PatientName = 'Anonymous'
 ds.PatientID = '123456'
-ds.StudyID = 'abcd'
-ds.SeriesNumber = '11'
+# ds.StudyID = 'SLICER10001'
+ds.SeriesNumber = '1'
 print(ls.find_files_in_dataset(DatasetDecoder(ds), 'SERIES'))

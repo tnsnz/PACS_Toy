@@ -1,5 +1,4 @@
 from pydicom import Dataset
-from pydicom.valuerep import PersonName
 
 
 class DatasetDecoder:

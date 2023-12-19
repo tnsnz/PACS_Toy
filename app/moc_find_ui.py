@@ -1,6 +1,4 @@
-import sys
-
-from PyQt5.QtWidgets import QApplication, QDialog, QWidget, QHBoxLayout, QFrame, QVBoxLayout, QTreeWidget, QPushButton, \
+from PyQt5.QtWidgets import QDialog, QWidget, QHBoxLayout, QFrame, QVBoxLayout, QTreeWidget, QPushButton, \
     QLabel, QComboBox, QLineEdit, QFileDialog, QTreeWidgetItem
 
 from god import FindQuery
