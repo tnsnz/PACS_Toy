@@ -52,7 +52,7 @@ class FindSCP:
 
         level = ds.QueryRetrieveLevel
 
-        local_storage.find_conditions_dicom(DatasetDecoder(ds), level)
+        local_storage.find_files_in_dataset(DatasetDecoder(ds), level)
 
 class StoreSCP:
     def __init__(self, args):

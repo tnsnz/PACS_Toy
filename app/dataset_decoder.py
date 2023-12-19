@@ -1,4 +1,5 @@
 from pydicom import Dataset
+from pydicom.valuerep import PersonName
 
 
 class DatasetDecoder:
@@ -28,7 +29,8 @@ class DatasetDecoder:
 
         if hasattr(ds, 'PatientName'):
             self.p_name_valid = True
-            self.p_name = ds.PatientName.original_string.decode()
+            self.p_name = ds.PatientName.alphabetic
+            # self.p_name = ds.PatientName.original_string.decode()
 
         if hasattr(ds, 'StudyID'):
             self.s_id_valid = True
