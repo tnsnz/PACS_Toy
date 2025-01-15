@@ -112,7 +112,6 @@ class LocalStorage:
             TreeNode(modality, series_node)
             TreeNode(modality, series_node)
 
-
 # from pydicom import Dataset
 #
 # ls = LocalStorage()

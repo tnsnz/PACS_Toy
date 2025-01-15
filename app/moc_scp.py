@@ -12,11 +12,9 @@ from pynetdicom import (
     ALL_TRANSFER_SYNTAXES,
     events
 )
-
-from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelFind
-
 from pynetdicom.apps.common import setup_logging
 from pynetdicom.apps.storescp.storescp import _setup_argparser
+from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelFind
 
 from dataset_handler import DatasetDecoder
 from filemanager import FileManager
@@ -25,6 +23,7 @@ from local_storage import LocalStorage
 debug_logger()
 
 local_storage = LocalStorage()
+
 
 class FindSCP:
     def __init__(self):
@@ -126,6 +125,7 @@ class GetSCP:
 def main(args=None):
     # scp = StoreSCP(args)
     scp = FindSCP()
+
 
 if '__main__' == __name__:
     main(['moc_scp.py', '11112'])
